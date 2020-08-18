@@ -56,7 +56,7 @@
     done=jscf.ge.quick_method%iscf
 
     do WHILE (.not.done)
-        if (quick_method%diisscf .and. PRMS < 1.D-1) call uelectdiis(jscf,PRMS)
+        if (quick_method%diisscf .and. PRMS < 1.D-1) call uelectdiis_sad(jscf,PRMS)
         call cpu_time(t1)
         jscf=jscf+1
 

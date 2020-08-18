@@ -1,7 +1,7 @@
 ! Ed Brothers. May 14, 2002
 ! 3456789012345678901234567890123456789012345678901234567890123456789012<<STOP
 
-subroutine uelectdiis(jscf,PRMS)
+subroutine uelectdiis_sad(jscf,PRMS)
    use allmod
    implicit none
 
@@ -595,5 +595,5 @@ subroutine uelectdiis(jscf,PRMS)
       diisdone = idiis.eq.quick_method%maxdiisscf.or.diisdone
    enddo
 
-end subroutine uelectdiis
+end subroutine uelectdiis_sad
 
