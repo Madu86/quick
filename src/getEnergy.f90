@@ -82,7 +82,7 @@ subroutine getEnergy(failed)
    ! unrestred system will call uscf. the logical variable failed indicated failed convergence.
    ! convergence criteria can be set in the job or default value.
    if (quick_method%UNRST) then
-      call uscf(failed)       ! unrestricted system
+      call uscf_sad(failed)       ! unrestricted system
    else
       call scf(failed)        ! restricted system
    endif

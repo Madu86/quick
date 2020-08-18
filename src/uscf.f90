@@ -1,7 +1,7 @@
 ! Ed Brothers. December 20, 2001
 ! 3456789012345678901234567890123456789012345678901234567890123456789012<<STOP
 
-    subroutine uscf(failed)
+    subroutine uscf_sad(failed)
     use allmod
     implicit double precision(a-h,o-z)
 
@@ -331,4 +331,4 @@
         endif
     enddo
 
-    end subroutine uscf
+    end subroutine uscf_sad
