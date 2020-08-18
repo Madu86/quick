@@ -34,14 +34,19 @@ modobj=$(objfolder)/quick_mpi_module.o $(objfolder)/quick_constants_module.o $(o
 		$(objfolder)/quick_scratch_module.o $(objfolder)/quick_all_module.o $(objfolder)/quick_scf_module.o \
 		$(objfolder)/quick_gradient_module.o $(objfolder)/quick_api_module.o $(objfolder)/quick_api_test_module.o 
 
+oshellmodoj=$(objfolder)/oshell_quick_eri_module.o
+
 #  !---------------------------------------------------------------------!
-#  ! Build targets                                                !
+#  ! Build targets                                                       !
 #  !---------------------------------------------------------------------!
 
 $(modobj):$(objfolder)/%.o:%.f90
 	$(FOR) -c $< -o $@
 
-all:$(modobj)
+$(oshellmodoj):$(objfolder)/oshell_%.o:%.f90
+	$(FOR) -DOSHELL -c $< -o $@
+
+all:$(modobj) $(oshellmodoj)
 
 #  !---------------------------------------------------------------------!
 #  ! Cleaning targets                                                    !
@@ -50,5 +55,5 @@ all:$(modobj)
 .PHONY: clean
 
 clean: 
-	@-rm -f *.mod *.o 
+	@-rm -f *.mod *.o
 	
