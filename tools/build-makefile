@@ -95,7 +95,7 @@ OBJ =   $(objfolder)/initialize.o $(objfolder)/read_job_and_atom.o $(objfolder)/
         $(objfolder)/ecp.o $(objfolder)/hfoperator.o $(objfolder)/nuclear.o \
         $(objfolder)/dft.o $(objfolder)/sedftoperator.o \
         $(objfolder)/scf.o $(objfolder)/uscf_sad.o $(objfolder)/finalize.o $(objfolder)/uhfoperator.o \
-        $(objfolder)/udftoperator.o $(objfolder)/usedftoperator.o \
+        $(objfolder)/uscf.o $(objfolder)/uscf_operator.o $(objfolder)/udftoperator.o $(objfolder)/usedftoperator.o \
         $(objfolder)/uelectdii.o $(objfolder)/mpi_setup.o $(objfolder)/quick_debug.o \
         $(objfolder)/calMP2.o $(objfolder)/optimize.o $(objfolder)/gradient.o $(objfolder)/hessian.o \
         $(objfolder)/CPHF.o $(objfolder)/frequency.o $(objfolder)/MFCC.o $(objfolder)/basis.o \
