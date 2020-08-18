@@ -1,18 +1,17 @@
-#include "config.h"
-
-!  Created by Madu Manathunga on 04/07/2020 
-!  Copyright 2020 Michigan State University. All rights reserved.
-!
-!-------------------------------------------------------
-!  scfoperator
-!-------------------------------------------------------
-!  04/07/2020 Madu Manathunga: Reorganized and improved content 
-!                             written by previous authors, implemented
-!                             new dft version
-!  03/21/2007 Alessandro Genoni: Implemented ECP integral contribution
-!                       for operator matrix
-!  11/27/2001 Ed Brothers: wrote the original code
-!-------------------------------------------------------
+!---------------------------------------------------------------------!
+! Created by Madu Manathunga on 08/18/2020                            !
+!                                                                     !
+! Previous contributors: Yipu Miao, Xio He, Alessandro Genoni,        !
+!                         Ken Ayers & Ed Brothers                     !
+!                                                                     ! 
+!                                                                     !
+! Copyright (C) 2020-2021 Merz lab                                    !
+! Copyright (C) 2020-2021 Götz lab                                    !
+!                                                                     !
+! This Source Code Form is subject to the terms of the Mozilla Public !
+! License, v. 2.0. If a copy of the MPL was not distributed with this !
+! file, You can obtain one at http://mozilla.org/MPL/2.0/.            !
+!_____________________________________________________________________!
 
 subroutine uscf_operator(oneElecO,deltaO)
    use allmod
