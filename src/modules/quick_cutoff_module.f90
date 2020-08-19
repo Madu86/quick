@@ -12,8 +12,6 @@
 ! file, You can obtain one at http://mozilla.org/MPL/2.0/.            !
 !_____________________________________________________________________!
 
-#include "../config.h"
-
 ! Xiao HE 07/07/07
 ! Schwartz cutoff is implemented here. (ab|cd)**2<=(ab|ab)*(cd|cd)
 ! Reference: Strout DL and Scuseria JCP 102(1995),8448.
