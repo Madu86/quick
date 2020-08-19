@@ -8,13 +8,14 @@
 !   written by Ed Brothers. 08/15/02
 !   This subroutine calculates and ouptus the energy.
 !
-subroutine getEnergy(failed)
+subroutine getEnergy(failed, is_sad)
    use allMod
    implicit none
 
    double precision :: distance
    double precision, external :: rootSquare
-   integer i,j
+   integer :: i,j
+   logical :: is_sad
 
 #ifdef MPIV
    include "mpif.h"
@@ -82,7 +83,11 @@ subroutine getEnergy(failed)
    ! unrestred system will call uscf. the logical variable failed indicated failed convergence.
    ! convergence criteria can be set in the job or default value.
    if (quick_method%UNRST) then
-      call uscf_sad(failed)       ! unrestricted system
+      if (is_sad) then
+         call uscf_sad(failed)       ! unrestricted system
+      else
+         call uscf(failed)
+      endif
    else
       call scf(failed)        ! restricted system
    endif
