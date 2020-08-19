@@ -212,11 +212,16 @@ contains
       if(.not. allocated(self%x)) allocate(self%x(nbasis,nbasis))
       if(.not. allocated(self%o)) allocate(self%o(nbasis,nbasis))
       if(.not. allocated(self%oSave)) allocate(self%oSave(nbasis,nbasis))
+      if(.not. allocated(self%ob)) allocate(self%ob(nbasis,nbasis))
+      if(.not. allocated(self%obSave)) allocate(self%obSave(nbasis,nbasis))
       if(.not. allocated(self%co)) allocate(self%co(nbasis,nbasis))
       if(.not. allocated(self%vec)) allocate(self%vec(nbasis,nbasis))
       if(.not. allocated(self%dense)) allocate(self%dense(nbasis,nbasis))
+      if(.not. allocated(self%denseb)) allocate(self%denseb(nbasis,nbasis))
       if(.not. allocated(self%denseSave)) allocate(self%denseSave(nbasis,nbasis))
+      if(.not. allocated(self%densebSave)) allocate(self%densebSave(nbasis,nbasis))
       if(.not. allocated(self%denseOld)) allocate(self%denseOld(nbasis,nbasis))
+      if(.not. allocated(self%densebOld)) allocate(self%densebOld(nbasis,nbasis))
       if(.not. allocated(self%denseInt)) allocate(self%denseInt(nbasis,nbasis))
       if(.not. allocated(self%E)) allocate(self%E(nbasis))
       if(.not. allocated(self%iDegen)) allocate(self%iDegen(nbasis))
@@ -250,9 +255,9 @@ contains
          if(.not. allocated(self%Eb)) allocate(self%Eb(nbasis))
       endif
 
-      if (quick_method%unrst .or. quick_method%DFT) then
-         if(.not. allocated(self%denseb)) allocate(self%denseb(nbasis,nbasis))
-      endif
+      !if (quick_method%unrst .or. quick_method%DFT) then
+      !   if(.not. allocated(self%denseb)) allocate(self%denseb(nbasis,nbasis))
+      !endif
 
       ! one more thing, DFT
       if (quick_method%DFT) then
@@ -335,12 +340,17 @@ contains
       if (allocated(self%s)) deallocate(self%s)
       if (allocated(self%x)) deallocate(self%x)
       if (allocated(self%o)) deallocate(self%o)
+      if (allocated(self%ob)) deallocate(self%ob)
       if (allocated(self%oSave)) deallocate(self%oSave)
+      if (allocated(self%obSave)) deallocate(self%obSave)
       if (allocated(self%co)) deallocate(self%co)
       if (allocated(self%vec)) deallocate(self%vec)
       if (allocated(self%dense)) deallocate(self%dense)
+      if (allocated(self%denseb)) deallocate(self%denseb)
       if (allocated(self%denseSave)) deallocate(self%denseSave)
+      if (allocated(self%densebSave)) deallocate(self%densebSave)
       if (allocated(self%denseOld)) deallocate(self%denseOld)
+      if (allocated(self%densebOld)) deallocate(self%densebOld)
       if (allocated(self%denseInt)) deallocate(self%denseInt)
       if (allocated(self%E)) deallocate(self%E)
       if (allocated(self%iDegen)) deallocate(self%iDegen)
@@ -369,9 +379,9 @@ contains
          if (allocated(self%Eb)) deallocate(self%Eb)
       endif
 
-      if (quick_method%unrst .or. quick_method%DFT) then
-         if (allocated(self%denseb)) deallocate(self%denseb)
-      endif
+      !if (quick_method%unrst .or. quick_method%DFT) then
+      !   if (allocated(self%denseb)) deallocate(self%denseb)
+      !endif
 
       ! one more thing, DFT
       if (quick_method%DFT) then
@@ -407,12 +417,17 @@ contains
       call MPI_BCAST(self%s,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%x,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%o,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
+      call MPI_BCAST(self%ob,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%oSave,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
+      call MPI_BCAST(self%obSave,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%co,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%vec,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%dense,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
+      call MPI_BCAST(self%denseb,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%denseSave,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
+      call MPI_BCAST(self%densebSave,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%denseOld,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
+      call MPI_BCAST(self%densebOld,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%denseInt,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%iDegen,nbasis,mpi_integer,0,MPI_COMM_WORLD,mpierror)
       call MPI_BCAST(self%E,nbasis,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
@@ -437,7 +452,6 @@ contains
 
       if (quick_method%unrst) then
          call MPI_BCAST(self%cob,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
-         call MPI_BCAST(self%denseb,nbasis2,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
          call MPI_BCAST(self%Eb,nbasis,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
          call MPI_BCAST(self%aElec,1,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
          call MPI_BCAST(self%bElec,1,mpi_double_precision,0,MPI_COMM_WORLD,mpierror)
@@ -486,20 +500,22 @@ contains
       call zeroMatrix(self%s,nbasis)
       call zeroMatrix(self%x,nbasis)
       call zeroMatrix(self%o,nbasis)
+      call zeroMatrix(self%ob,nbasis)
       call zeroMatrix(self%oSave,nbasis)
+      call zeroMatrix(self%obSave,nbasis)
       call zeroMatrix(self%co,nbasis)
       call zeroMatrix(self%vec,nbasis)
       call zeroMatrix(self%dense,nbasis)
+      call zeroMatrix(self%denseb,nbasis)
       call zeroMatrix(self%denseSave,nbasis)
+      call zeroMatrix(self%densebSave,nbasis)
       call zeroMatrix(self%denseOld,nbasis)
+      call zeroMatrix(self%densebOld,nbasis)
       call zeroMatrix(self%denseInt,nbasis)
       call zeroVec(self%E,nbasis)
       call zeroiVec(self%iDegen,nbasis)
       call zeroVec(self%Mulliken,natom)
       call zeroVec(self%Lowdin,natom)
-
-      call zeroMatrix(self%denseOld,nbasis)
-
 
       ! if 1st order derivation, which is gradient calculation is requested
       if (quick_method%grad) then
@@ -521,7 +537,6 @@ contains
       ! if unrestricted, some more varibles is required to be allocated
       if (quick_method%unrst) then
          call zeroMatrix(self%cob,nbasis)
-         call zeroMatrix(self%denseb,nbasis)
          call zeroVec(self%Eb,nbasis)
       endif
 
