@@ -25,7 +25,7 @@ include $(MAKEIN)
 FOR=$(FC) $(FFLAGS)
 
 SUBS = $(objfolder)/Angles.o $(objfolder)/copyDMat.o $(objfolder)/copySym.o \
-	$(objfolder)/degen.o $(objfolder)/denspt.o $(objfolder)/diag.o $(objfolder)/dipole.o \
+	$(objfolder)/degen.o $(objfolder)/denspt_old.o $(objfolder)/diag.o $(objfolder)/dipole.o \
 	$(objfolder)/EffChar.o $(objfolder)/eigvec.o \
 	$(objfolder)/ekinetic.o $(objfolder)/findBlock.o $(objfolder)/fmt.o $(objfolder)/getinum.o \
 	$(objfolder)/getNum.o $(objfolder)/greedy_distrubute.o $(objfolder)/hrr.o $(objfolder)/iatoi.o \
@@ -39,8 +39,10 @@ SUBS = $(objfolder)/Angles.o $(objfolder)/copyDMat.o $(objfolder)/copySym.o \
 	$(objfolder)/ssw.o $(objfolder)/sum2Mat.o $(objfolder)/transpose.o $(objfolder)/tridi.o \
 	$(objfolder)/upcase.o $(objfolder)/vett.o $(objfolder)/whatis.o $(objfolder)/whole.o \
 	$(objfolder)/wrtRestart.o $(objfolder)/xnorm.o $(objfolder)/zeroMatrix.o $(objfolder)/zmake.o \
-	$(objfolder)/pt2der.o $(objfolder)/sswder.o $(objfolder)/denspt_new_imp.o \
+	$(objfolder)/pt2der.o $(objfolder)/sswder.o $(objfolder)/denspt_new_imp.o $(objfolder)/denspt.o \
 	$(objfolder)/pteval_new_imp.o $(objfolder)/scaMatMul.o 
+
+oshellsubs=$(objfolder)/oshell_denspt.o
 
 #  !---------------------------------------------------------------------!
 #  ! Build targets                                                       !
@@ -49,7 +51,10 @@ SUBS = $(objfolder)/Angles.o $(objfolder)/copyDMat.o $(objfolder)/copySym.o \
 $(SUBS):$(objfolder)/%.o:%.f90
 	$(FOR) -c $< -o $@
 
-all: $(SUBS)
+$(oshellsubs):$(objfolder)/oshell_%.o:%.f90
+	$(FOR) -DOSHELL -c $< -o $@
+
+all: $(SUBS) $(oshellsubs)
 
 #  !---------------------------------------------------------------------!
 #  ! Cleaning targets                                                    !
