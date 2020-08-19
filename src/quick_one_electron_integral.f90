@@ -1692,6 +1692,26 @@ subroutine get1eEnergy()
 
 end subroutine get1eEnergy
 
+!------------------------------------------------
+! Calculates 1e energy in the uscf version
+!------------------------------------------------
+subroutine get1eEnergy_uscf(oneElecO)
+   use allmod
+   implicit double precision(a-h,o-z)
+   double precision :: oneElecO(nbasis,nbasis)
+
+   call cpu_time(timer_begin%tE)
+
+   !call copySym(quick_qm_struct%o,nbasis)
+   quick_qm_struct%Eel=0.d0
+   quick_qm_struct%Eel=quick_qm_struct%Eel+sum2mat(quick_qm_struct%dense,oneElecO,nbasis)+ &
+                       sum2mat(quick_qm_struct%denseb,oneElecO,nbasis)
+
+   call cpu_time(timer_end%tE)
+   timer_cumer%TE=timer_cumer%TE+timer_end%TE-timer_begin%TE
+
+end subroutine get1eEnergy_uscf
+
 
 !------------------------------------------------
 ! get1e
