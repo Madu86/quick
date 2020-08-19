@@ -25,6 +25,8 @@ subroutine scf_operator(oneElecO, deltaO)
 !  This code now also does all the HF energy calculation. Ed.
 !-------------------------------------------------------
    use allmod
+   use quick_cutoff_module, only: cshell_density_cutoff
+
    implicit none
 
 #ifdef MPIV
@@ -74,7 +76,7 @@ subroutine scf_operator(oneElecO, deltaO)
    endif
 
 !  Delta density matrix cutoff
-   call densityCutoff()
+   call cshell_density_cutoff
 
 #ifdef MPIV
    if(master) then

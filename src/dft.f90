@@ -637,7 +637,9 @@ end subroutine
 ! 3456789012345678901234567890123456789012345678901234567890123456789012<<STOP
 
 subroutine dftoperator
+
    use allmod
+   use quick_cutoff_module, only: cshell_dnscreen
 
 !#ifndef CUDA
    use xc_f90_types_m
@@ -785,7 +787,7 @@ write(*,*) "E0=",quick_qm_struct%Eel
    do II=1,jshell
       do JJ=II,jshell
          DNtemp=0.0d0
-         call DNscreen(II,JJ,DNtemp)
+         call cshell_dnscreen(II,JJ,DNtemp)
          Cutmatrix(II,JJ)=DNtemp
          Cutmatrix(JJ,II)=DNtemp
       enddo
@@ -1148,6 +1150,8 @@ end subroutine dftoperator
 
 subroutine dftoperatordelta
    use allmod
+   use quick_cutoff_module, only: cshell_dnscreen
+
    implicit double precision(a-h,o-z)
 
    ! The purpose of this subroutine is to form the operator matrix
@@ -1281,7 +1285,7 @@ subroutine dftoperatordelta
    do II=1,jshell
       do JJ=II,jshell
          DNtemp=0.0d0
-         call DNscreen(II,JJ,DNtemp)
+         call cshell_dnscreen(II,JJ,DNtemp)
          Cutmatrix(II,JJ)=DNtemp
          Cutmatrix(JJ,II)=DNtemp
       enddo
