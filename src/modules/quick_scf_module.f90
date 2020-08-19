@@ -18,7 +18,7 @@ module quick_scf_module
   private
 
   public :: allocate_quick_scf, deallocate_quick_scf 
-  public :: V2, oneElecO, B, BSAVE, BCOPY, W, COEFF, RHS, allerror, alloperator
+  public :: V2, oneElecO, B, BSAVE, BCOPY, W, COEFF, RHS, allerror, alloperator, alloperatorB
 !  type quick_scf_type
 
     ! a workspace matrix of size 3,nbasis to be passed into the diagonalizer 
@@ -43,6 +43,8 @@ module quick_scf_module
     double precision, allocatable, dimension(:,:,:) :: allerror
 
     double precision, allocatable, dimension(:,:,:) :: alloperator
+
+    double precision, allocatable, dimension(:,:,:) :: alloperatorB
 
 !  end type quick_scf_type
 
@@ -83,9 +85,16 @@ contains
     allerror    = 0.0d0
     alloperator = 0.0d0
 
+    if (quick_method%unrst) then
+      if(.not. allocated(alloperatorB)) allocate(alloperatorB(quick_method%maxdiisscf, nbasis, nbasis), stat=ierr)
+      alloperatorB = 0.0d0
+    endif
+
   end subroutine allocate_quick_scf 
 
   subroutine deallocate_quick_scf()
+
+    use quick_method_module
 
     implicit none
 
@@ -101,6 +110,10 @@ contains
     if(allocated(RHS))         deallocate(RHS, stat=ierr)
     if(allocated(allerror))    deallocate(allerror, stat=ierr)
     if(allocated(alloperator)) deallocate(alloperator, stat=ierr)
+
+    if (quick_method%unrst) then
+      if(allocated(alloperatorB)) deallocate(alloperatorB, stat=ierr)
+    endif
 
   end subroutine deallocate_quick_scf
 
