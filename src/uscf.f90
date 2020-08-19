@@ -79,11 +79,13 @@ end subroutine uscf
 
 
 subroutine uelectdiis(jscf)
+
    use allmod
+   use quick_scf_module
+
    implicit none
 
    integer :: jscf
-   double precision :: oneElecO(nbasis,nbasis)
 
    logical :: diisdone = .false. ! flag to indicate if diis is done
    logical :: deltaO   = .false. ! delta Operator
@@ -94,17 +96,6 @@ subroutine uelectdiis(jscf)
    double precision :: Sum2Mat,BIJ,CIJ,DENSEIJ,rms,errormax,HOLDIJ,OIJ,OJK,OLDPRMS,PCHANGE,PRMS,PRMS2,tmp,temp
    double precision :: t1,t2, tempij,DENSEJI
    integer :: i,j,IERROR,k
-
-   double precision :: alloperatorB(quick_method%maxdiisscf,nbasis,nbasis)
-   double precision :: B(quick_method%maxdiisscf+1,quick_method%maxdiisscf+1)
-   double precision :: BSAVE(quick_method%maxdiisscf+1,quick_method%maxdiisscf+1)
-   double precision :: BCOPY(quick_method%maxdiisscf+1,quick_method%maxdiisscf+1)
-   double precision :: W(quick_method%maxdiisscf+1), V2(3,nbasis)
-   double precision :: COEFF(quick_method%maxdiisscf+1),RHS(quick_method%maxdiisscf+1)
-
-   double precision :: allerror(quick_method%maxdiisscf,nbasis,nbasis)
-   double precision :: alloperator(quick_method%maxdiisscf,nbasis,nbasis)
-
    double precision :: TEne_begin,TEne_end, step_TDiag ! Operator and diagonalization times for a single step
    double precision :: oldEnergy            ! To keep track of step energy change
 
@@ -168,6 +159,8 @@ subroutine uelectdiis(jscf)
 
    ! 1)  Form the alpha operator matrix for step i, O(i).  (Store in
    ! alloperator array.)
+
+   call allocate_quick_scf()
 
    call get1e(oneElecO)
 
@@ -823,6 +816,8 @@ subroutine uelectdiis(jscf)
       endif
    endif
 #endif
+
+   call deallocate_quick_scf()
 
    return
 
