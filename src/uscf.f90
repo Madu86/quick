@@ -503,7 +503,7 @@ subroutine uelectdiis(jscf)
 
          IDIIS_Error_Start = 1
          IDIIS_Error_End   = IDIISfinal
-         111     IF (LSOLERR.ne.0)then
+         111     IF (LSOLERR.ne.0 .and. IDIISfinal > 0)then
             IDIISfinal=Idiisfinal-1
             do I=1,IDIISfinal+1
                do J=1,IDIISfinal+1
