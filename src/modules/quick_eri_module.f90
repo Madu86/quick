@@ -50,7 +50,12 @@ subroutine get_eri_precomputables
    !__________________________________________________________________
 
    use allmod
+
    implicit none
+
+#ifdef MPIV
+   include "mpif.h"
+#endif
 
    integer ics,ips,jcs,jps,itemp,itemp2,i
    integer NA,NB
