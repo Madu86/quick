@@ -228,7 +228,7 @@ subroutine getxc_oshell
       call gpu_upload_calculated(quick_qm_struct%o,quick_qm_struct%co, &
             quick_qm_struct%vec,quick_qm_struct%dense)
 
-      call gpu_getxc_new_imp(Eelxc, quick_qm_struct%aelec, quick_qm_struct%belec, quick_qm_struct%o, &
+      call gpu_getxc(Eelxc, quick_qm_struct%aelec, quick_qm_struct%belec, quick_qm_struct%o, &
       quick_method%nof_functionals, quick_method%functional_id, quick_method%xc_polarization)
 
    endif
