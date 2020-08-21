@@ -291,19 +291,21 @@ subroutine get_xc
    !integer II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2, I, J
    !common /hrrstore/II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2
 
-   double precision, dimension(1) :: libxc_rho
-   double precision, dimension(1) :: libxc_sigma
-   double precision, dimension(1) :: libxc_exc
-   double precision, dimension(1) :: libxc_vrhoa
-   double precision, dimension(1) :: libxc_vsigmaa
-   type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_func
-   type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_info   
    integer :: iatm, ibas, ibin, icount, ifunc, igp, jbas, jcount, ierror 
    double precision :: density, densityb, densitysum, dfdgaa, dfdgaa2, dfdgab, &
    dfdgab2, dfdr, dfdr2, dphi2dx, dphi2dy, dphi2dz, dphidx, dphidy, dphidz, &
    gax, gay, gaz, gbx, gby, gbz, gridx, gridy, gridz, phi, phi2, quicktest, &
    sigma, sswt, temp, tempgx, tempgy, tempgz, tsttmp_exc, tsttmp_vrhoa, &
    tsttmp_vsigmaa, weight, xdot, ydot, zdot, xiaodot, zkec, Ex, Ec, Eelxc
+
+   double precision, dimension(1) :: libxc_rho
+   double precision, dimension(1) :: libxc_sigma
+   double precision, dimension(1) :: libxc_exc
+   double precision, dimension(1) :: libxc_vrhoa
+   double precision, dimension(1) :: libxc_vsigmaa
+
+   type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_func
+   type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_info
 
 #ifdef MPIV
    integer :: i, ii, irad_end, irad_init, jj
