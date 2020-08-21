@@ -183,11 +183,20 @@ subroutine getxc_oshell
    use allmod
    use xc_f90_types_m
    use xc_f90_lib_m
-   implicit double precision(a-h,o-z)
+
+   implicit none
 
 #ifdef MPIV
    include "mpif.h"
 #endif
+
+   integer :: iatm, ibas, ibin, icount, ifunc, igp, jbas, jcount, ierror
+   double precision :: density, densityb, densitysum, dfdgaa, dfdgaa2, dfdgab, dfdgbb, &
+   dfdgab2, dfdr, dfdrb, dfdr2, dphi2dx, dphi2dy, dphi2dz, dphidx, dphidy, dphidz, &
+   gax, gay, gaz, gbx, gby, gbz, gaa, gab, gbb, gridx, gridy, gridz, phi, phi2, quicktest, &
+   sigma, sswt, temp, tempgx, tempgy, tempgz, tsttmp_exc, tsttmp_vrhoa, &
+   tsttmp_vsigmaa, weight, xdot, ydot, zdot, xiaodot, zkec, Ex, Ec, Eelxc, excpp, &
+   xdotb, ydotb, zdotb   
 
    double precision, dimension(2) :: libxc_rho
    double precision, dimension(3) :: libxc_sigma
@@ -197,11 +206,12 @@ subroutine getxc_oshell
 
    type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_func
    type(xc_f90_pointer_t), dimension(quick_method%nof_functionals) :: xc_info
-#ifdef MPIV
-   double precision, allocatable:: temp2d(:,:)
-   integer :: ierror
 
-   double precision :: Eelxc, Eelxcslave
+#ifdef MPIV
+   integer :: i, ii, irad_end, irad_init, jj
+   double precision :: Eelxcslave
+   double precision, allocatable:: temp2d(:,:)
+
    allocate(temp2d(nbasis,nbasis))
 
 !  Braodcast libxc information to slaves
