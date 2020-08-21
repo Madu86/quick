@@ -30,8 +30,11 @@ struct gpu_calculated_type {
     int                             natom;  // number of atom
     int                             nbasis; // number of basis sets
     cuda_buffer_type<QUICKDouble>*  o;      // O matrix
+    cuda_buffer_type<QUICKDouble>*  ob;     // beta O matrix
     cuda_buffer_type<QUICKDouble>*  dense;  // Density Matrix
+    cuda_buffer_type<QUICKDouble>*  denseb; // Beta Density Matrix
     cuda_buffer_type<QUICKULL>*     oULL;   // Unsigned long long int type O matrix
+    cuda_buffer_type<QUICKULL>*     obULL;  // Unsigned long long int type Ob matrix
     cuda_buffer_type<QUICKDouble>*  distance; // distance matrix
 };
 
@@ -240,8 +243,11 @@ struct gpu_simulation_type {
 
     // Some more infos about pre-calculated values
     QUICKDouble*                    o;
+    QUICKDouble*                    ob;
     QUICKULL*                       oULL;
+    QUICKULL*                       obULL;
     QUICKDouble*                    dense;
+    QUICKDouble*                    denseb;
     
     QUICKDouble*                    distance;
     QUICKDouble*                    Xcoeff;
