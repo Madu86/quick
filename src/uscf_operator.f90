@@ -14,13 +14,6 @@
 !_____________________________________________________________________!
 
 subroutine uscf_operator(oneElecO,deltaO)
-   use allmod
-   use quick_oshell_module
-   use quick_cutoff_module
-   implicit double precision(a-h,o-z)
-
-   double precision :: oneElecO(nbasis,nbasis)
-   logical :: deltaO
 
 ! The purpose of this subroutine is to form the operator matrices
 ! for a uscf calculation, i.e. alpha & beta Fock matrices.  The
@@ -31,9 +24,39 @@ subroutine uscf_operator(oneElecO,deltaO)
 ! possible basis.
 ! Note that the Fock matrix is symmetric.
 
+   use allmod
+   use quick_oshell_module
+   use quick_cutoff_module
+
+   implicit double precision(a-h,o-z)
+
+#ifdef MPIV
+   include "mpif.h"
+#endif
+
+   double precision :: oneElecO(nbasis,nbasis)
+   logical :: deltaO
+
+#ifdef MPIV
+   integer ierror
+   double precision,allocatable:: slaveoa(:,:), slaveob(:,:)
+
+   allocate(slaveoa(nbasis,nbasis))
+   allocate(slaveob(nbasis,nbasis))
+
+   slaveoa = 0.0d0
+   slaveob = 0.0d0
+
+#endif
+
 !-----------------------------------------------------------------
 !  Step 1. evaluate 1e integrals
 !-----------------------------------------------------------------
+
+#ifdef MPIV
+   if(master) then
+#endif
+
    call copyDMat(oneElecO,quick_qm_struct%o,nbasis)
    call copyDMat(oneElecO,quick_qm_struct%ob,nbasis)
  
@@ -45,6 +68,10 @@ subroutine uscf_operator(oneElecO,deltaO)
 !    if (quick_method%ecp) then
 !      call ecpoperator
 !    end if
+
+#ifdef MPIV
+   endif
+#endif
 
 !  if only calculate operation difference
    if (deltaO) then
@@ -72,9 +99,28 @@ subroutine uscf_operator(oneElecO,deltaO)
 
    call oshell_density_cutoff
 
+#ifdef MPIV
+   if(master) then
+#endif
+
    call cpu_time(timer_begin%T2e)
 
-#ifdef CUDA
+#ifdef MPIV
+   endif
+#endif
+
+#ifdef MPIV
+!  Reset the operator value for slave nodes.
+   if (.not.master) then
+      quick_qm_struct%o  = 0.0d0
+      quick_qm_struct%ob = 0.0d0
+   endif
+
+!  sync every nodes
+   call MPI_BARRIER(MPI_COMM_WORLD,mpierror)
+#endif
+
+#if defined CUDA || defined CUDA_MPIV
    if (quick_method%bCUDA) then
 
       if(quick_method%HF)then
@@ -95,15 +141,59 @@ subroutine uscf_operator(oneElecO,deltaO)
 
       call gpu_get_oshell_eri(quick_qm_struct%o, quick_qm_struct%ob)
 
-   endif   
+   else   
    
-#else
+#endif
 
+#if defined MPIV && !defined CUDA_MPIV 
+!  Every nodes will take about jshell/nodes shells integrals such as 1 water, which has 
+!  4 jshell, and 2 nodes will take 2 jshell respectively.
+   if(bMPI) then
+      do i=1,mpi_jshelln(mpirank)
+         ii=mpi_jshell(mpirank,i)
+         call get_oshell_eri(II)
+      enddo
+   else
+      do II=1,jshell
+         call get_oshell_eri(II)
+      enddo
+   endif
+#else
     do II=1,jshell
         call get_oshell_eri(II)
     enddo
-
 #endif
+
+#if defined CUDA || defined CUDA_MPIV 
+   endif
+#endif    
+
+#ifdef MPIV
+   if(.not. master) then
+!  Send the operators to master
+      call copyDMat(quick_qm_struct%o,slaveoa,nbasis)
+      call copyDMat(quick_qm_struct%ob,slaveob,nbasis)
+      call MPI_SEND(slaveoa,nbasis*nbasis,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+      call MPI_SEND(slaveob,nbasis*nbasis,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+   else
+
+!  Master node will receive infos from every nodes
+      do i=1,mpisize-1
+!  Receive opertors from slave nodes
+         call MPI_RECV(slaveoa,nbasis*nbasis,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+         call MPI_RECV(slaveob,nbasis*nbasis,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+!  Sum them into operator
+         do ii=1,nbasis
+            do jj=1,nbasis
+               quick_qm_struct%o(ii,jj)=quick_qm_struct%o(ii,jj)+slaveoa(ii,jj)
+               quick_qm_struct%ob(ii,jj)=quick_qm_struct%ob(ii,jj)+slaveob(ii,jj)
+            enddo
+         enddo
+      enddo
+   endif
+   call MPI_BARRIER(MPI_COMM_WORLD,mpierror)
+#endif
+
 
 !  Remember the operator is symmetric
    call copySym(quick_qm_struct%o,nbasis)
@@ -210,9 +300,10 @@ subroutine getxc_oshell
 #ifdef MPIV
    integer :: i, ii, irad_end, irad_init, jj
    double precision :: Eelxcslave
-   double precision, allocatable:: temp2d(:,:)
+   double precision, allocatable:: slaveoa(:,:), slaveob(:,:) 
 
-   allocate(temp2d(nbasis,nbasis))
+   allocate(slaveoa(nbasis,nbasis))
+   allocate(slaveob(nbasis,nbasis))
 
 !  Braodcast libxc information to slaves
    call MPI_BCAST(quick_method%nof_functionals,1,mpi_integer,0,MPI_COMM_WORLD,mpierror)
@@ -222,14 +313,15 @@ subroutine getxc_oshell
 
    quick_qm_struct%aelec=0.d0
    quick_qm_struct%belec=0.d0
+   Eelxc=0.0d0
 
 #ifdef MPIV
 !  Set the values of slave operators to zero
-   if (.not.master) then
-      call zeroMatrix(quick_qm_struct%o, nbasis)
-      Eelxc=0
-   endif
-   call zeroMatrix(temp2d, nbasis)
+   if (.not.master) quick_qm_struct%o = 0.0d0
+
+   slaveoa = 0.0d0
+   slaveob = 0.0d0
+   
 #endif
 
 #ifdef CUDA
@@ -488,8 +580,10 @@ subroutine getxc_oshell
 !  Send the Exc energy value
       Eelxcslave=Eelxc
       call MPI_SEND(Eelxcslave,1,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
-      call copyDMat(quick_qm_struct%o,temp2d,nbasis)
-      call MPI_SEND(temp2d,nbasis*nbasis,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+      call copyDMat(quick_qm_struct%o,slaveoa,nbasis)
+      call copyDMat(quick_qm_struct%ob,slaveob,nbasis)
+      call MPI_SEND(slaveoa,nbasis*nbasis,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+      call MPI_SEND(slaveob,nbasis*nbasis,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
    else
 
 !  Master node will receive infos from every nodes
@@ -498,11 +592,13 @@ subroutine getxc_oshell
          call MPI_RECV(Eelxcslave,1,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
          Eelxc=Eelxc+Eelxcslave
 !  Receive opertors from slave nodes
-         call  MPI_RECV(temp2d,nbasis*nbasis,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+         call MPI_RECV(slaveoa,nbasis*nbasis,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+         call MPI_RECV(slaveob,nbasis*nbasis,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
 !  Sum them into operator
          do ii=1,nbasis
             do jj=1,nbasis
-               quick_qm_struct%o(ii,jj)=quick_qm_struct%o(ii,jj)+temp2d(ii,jj)
+               quick_qm_struct%o(ii,jj)=quick_qm_struct%o(ii,jj)+slaveoa(ii,jj)
+               quick_qm_struct%ob(ii,jj)=quick_qm_struct%ob(ii,jj)+slaveob(ii,jj)
             enddo
          enddo
       enddo
