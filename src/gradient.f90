@@ -142,7 +142,9 @@ end subroutine gradient
 
 subroutine scf_gradient
    use allmod
-   use quick_gradient_module
+   use quick_cshell_gradient_module, only: allocate_quick_gradient, &
+   deallocate_quick_gradient, tmp_grad, tmp_ptchg_grad
+
    implicit double precision(a-h,o-z)
 
    integer II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2
