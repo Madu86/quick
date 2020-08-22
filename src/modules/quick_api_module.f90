@@ -393,6 +393,9 @@ subroutine run_quick(self)
   use quick_gridpoints_module, only : quick_dft_grid, deform_dft_grid
   use quick_cutoff_module, only: schwarzoff
   use quick_cshell_module, only: get_eri_precomputables
+  use quick_cshell_gradient_module, only: cshell_gradient
+  use quick_oshell_gradient_module, only: oshell_gradient
+
 #ifdef MPIV
   use quick_mpi_module
 #endif
@@ -450,7 +453,13 @@ subroutine run_quick(self)
   endif
   
   ! compute gradients
-  if ( .not. quick_method%opt .and. quick_method%grad) call gradient(failed)
+  if ( .not. quick_method%opt .and. quick_method%grad) then 
+    if (quick_method%UNRST) then
+      call oshell_gradient(failed)
+    else
+      call cshell_gradient(failed)
+    endif
+  endif
 
   ! run optimization
   if (quick_method%opt)  call optimize(failed)

@@ -27,6 +27,9 @@
     use allMod
     use divPB_Private, only: initialize_DivPBVars
     use quick_cutoff_module, only: schwarzoff    
+    use quick_cshell_module, only: get_eri_precomputables
+    use quick_cshell_gradient_module, only: cshell_gradient
+    use quick_oshell_gradient_module, only: oshell_gradient
 
     implicit none
 
@@ -177,7 +180,7 @@
 !        call getEnergy(failed)
 !      endif
 !   else
-        call g2eshell   ! pre-calculate 2 indices coeffecient to save time
+        call get_eri_precomputables   ! pre-calculate 2 indices coeffecient to save time
         call schwarzoff ! pre-calculate schwarz cutoff criteria
     endif
 
@@ -215,7 +218,15 @@
     ! available. A improvement is in optimzenew, which is based on 
     ! internal coordinates, but is under coding.    
     if (quick_method%opt)  call optimize(failed)     ! Cartesian 
-    if (.not.quick_method%opt .and. quick_method%grad) call gradient(failed)                             
+
+    if (.not.quick_method%opt .and. quick_method%grad) then 
+        if (quick_method%UNRST) then
+            call oshell_gradient(failed)
+        else
+            call cshell_gradient(failed)
+        endif                                     
+    endif
+
     if (failed) call quick_exit(iOutFile,1)          ! If geometry optimization fails
 
     ! Now at this point we have an energy and a geometry.  If this is
