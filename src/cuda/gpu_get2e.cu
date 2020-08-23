@@ -263,11 +263,11 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf10
 #undef new_quick_2_gpu_get2e_subs_h
 #include "gpu_get2e_subs.h"
-//#include "gpu_get2e_subs_grad.h"
+#include "gpu_get2e_subs_grad.h"
 
 //===================================
 
-/*#undef int_spd
+#undef int_spd
 #define int_spdf
 #undef int_spdf2
 #undef int_spdf3
@@ -305,7 +305,7 @@ static __constant__ int Sumindex[10]={0,0,1,4,10,20,35,56,84,120};
 #undef int_spdf9
 #undef int_spdf10
 #include "gpu_get2e_subs_grad.h"
-*/
+
 
 #ifdef CUDA_SPDF
 //===================================
@@ -596,6 +596,30 @@ void getGrad(_gpu_type gpu)
         QUICK_SAFE_CALL((getGrad_kernel_spdf<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()));
         // Part f-2
         QUICK_SAFE_CALL((getGrad_kernel_spdf2<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()));
+        // Part f-3
+        //    QUICK_SAFE_CALL((getGrad_kernel_spdf3<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()))
+        //#endif
+    }
+
+//    cudaDeviceSynchronize();
+//    nvtxRangePop();
+
+}
+
+
+// interface to call uscf gradient Kernels
+void get_oshell_eri_grad(_gpu_type gpu)
+{
+
+//   nvtxRangePushA("Gradient 2e");
+   
+   QUICK_SAFE_CALL((getGrad_oshell_kernel<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()));
+    if (gpu->maxL >= 2) {
+        //#ifdef CUDA_SPDF
+        // Part f-1
+        QUICK_SAFE_CALL((getGrad_oshell_kernel_spdf<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()));
+        // Part f-2
+        QUICK_SAFE_CALL((getGrad_oshell_kernel_spdf2<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()));
         // Part f-3
         //    QUICK_SAFE_CALL((getGrad_kernel_spdf3<<<gpu->blocks, gpu->gradThreadsPerBlock>>>()))
         //#endif

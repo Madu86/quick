@@ -27,7 +27,7 @@ extern "C" void gpu_get_device_info_(int* gpu_dev_count, int* gpu_dev_id,int* gp
 
 
 // molecule, basis sets, and some other information
-extern "C" void gpu_upload_method_(int* quick_method, double* hyb_coeff);
+extern "C" void gpu_upload_method_(int* quick_method, bool* is_oshell, double* hyb_coeff);
 extern "C" void gpu_upload_atom_and_chg_(int* atom, QUICKDouble* atom_chg);
 extern "C" void gpu_upload_cutoff_(QUICKDouble* cutMatrix, QUICKDouble* integralCutoff,QUICKDouble* primLimit, QUICKDouble* DMCutoff);
 extern "C" void gpu_upload_cutoff_matrix_(QUICKDouble* YCutoff,QUICKDouble* cutPrim);
@@ -71,6 +71,7 @@ void gpu_delete_sswgrad_vars();
 void get2e_MP2(_gpu_type gpu);
 void getAddInt(_gpu_type gpu, int bufferSize, ERI_entry* aoint_buffer);
 void getGrad(_gpu_type gpu);
+void get_oshell_eri_grad(_gpu_type gpu);
 // global [get2e_kernel]
 __global__ void get2e_kernel();
 __global__ void get2e_kernel_spdf();
@@ -118,6 +119,16 @@ __global__ void getGrad_kernel_spdf5();
 __global__ void getGrad_kernel_spdf6();
 __global__ void getGrad_kernel_spdf7();
 __global__ void getGrad_kernel_spdf8();
+
+__global__ void getGrad_oshell_kernel();
+__global__ void getGrad_oshell_kernel_spdf();
+__global__ void getGrad_oshell_kernel_spdf2();
+__global__ void getGrad_oshell_kernel_spdf3();
+__global__ void getGrad_oshell_kernel_spdf4();
+__global__ void getGrad_oshell_kernel_spdf5();
+__global__ void getGrad_oshell_kernel_spdf6();
+__global__ void getGrad_oshell_kernel_spdf7();
+__global__ void getGrad_oshell_kernel_spdf8();
 
 __global__ void get_ssw_kernel();
 __global__ void get_primf_contraf_lists_kernel(unsigned char *gpweight, unsigned int *cfweight, unsigned int *pfweight);
@@ -177,6 +188,16 @@ __device__ void iclass_grad_spdf5(int I, int J, int K, int L, unsigned int II, u
 __device__ void iclass_grad_spdf6(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 __device__ void iclass_grad_spdf7(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 __device__ void iclass_grad_spdf8(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+
+__device__ void iclass_oshell_grad(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf2(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf3(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf4(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf5(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf6(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf7(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
+__device__ void iclass_oshell_grad_spdf8(int I, int J, int K, int L, unsigned int II, unsigned int JJ, unsigned int KK, unsigned int LL, QUICKDouble DNMax);
 
 void upload_sim_to_constant(_gpu_type gpu);
 void upload_sim_to_constant_dft(_gpu_type gpu);
