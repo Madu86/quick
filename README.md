@@ -1,6 +1,7 @@
 <p align="right">
 <img src="https://github.com/Madu86/QUICK/workflows/Serial%20Build/badge.svg">
 <img src="https://github.com/Madu86/QUICK/workflows/MPI%20Build/badge.svg">
+<img src='https://readthedocs.org/projects/quick-docs/badge/?version=20.6.0' alt='Documentation Status' />
 </p>
 <p align="left">
 <img width="299" height="107" src="./tools/logo.png">
@@ -13,7 +14,7 @@ lab at Michigan State University.
 Features
 --------
 * Single point Hartree-Fock calculations (closed shell only) 
-* Density functional theory calculations (LGA, GGA and Hybrid-GGA functionals available, closed shell only).
+* Density functional theory calculations (LDA, GGA and Hybrid-GGA functionals available, closed shell only).
 * Gradient and geometry optimization calculations (LBFGS solver available)
 * Mulliken charge analysis
 
