@@ -132,6 +132,7 @@ struct gpu_simulation_type {
     DFT_calculated_type*            DFT_calculated;
     XC_quadrature_type*             xcq;
     QUICKDouble                     hyb_coeff;   
+    bool                            is_oshell;
  
     // used for DFT
     int                             isg;        // isg algrothm
