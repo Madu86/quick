@@ -305,7 +305,7 @@ extern "C" void gpu_setup_(int* natom, int* nbasis, int* nElec, int* imult, int*
 //-----------------------------------------------
 //  upload method and hybrid coefficient
 //-----------------------------------------------
-extern "C" void gpu_upload_method_(int* quick_method, double* hyb_coeff)
+extern "C" void gpu_upload_method_(int* quick_method, bool* is_oshell, double* hyb_coeff)
 {
     if (*quick_method == 0) {
         gpu -> gpu_sim.method = HF;
@@ -320,6 +320,9 @@ extern "C" void gpu_upload_method_(int* quick_method, double* hyb_coeff)
 	gpu -> gpu_sim.method = LIBXC;
 	gpu -> gpu_sim.hyb_coeff = *hyb_coeff;
     }
+
+    gpu -> gpu_sim.is_oshell = *is_oshell;
+
 }
 
 //-----------------------------------------------
@@ -2192,9 +2195,12 @@ extern "C" void gpu_grad_(QUICKDouble* grad)
         printf("before %i %f\n", i, gpu -> grad -> _hostData[i]);
     }
 */    
-    
-    getGrad(gpu);
-    
+    if(gpu -> gpu_sim.is_oshell == true){
+        get_oshell_eri_grad(gpu);
+    }else{
+        getGrad(gpu);
+    }    
+
     PRINTDEBUG("COMPLETE KERNEL")
     
     
@@ -2251,6 +2257,7 @@ extern "C" void gpu_grad_(QUICKDouble* grad)
     
     PRINTDEBUG("COMPLETE RUNNING GRAD")
 }
+
 
 
 static bool debut = true;
