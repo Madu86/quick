@@ -797,12 +797,12 @@ write(*,*) "E0=",quick_qm_struct%Eel
 #ifdef CUDA
         if (quick_method%bCUDA) then
                 if(quick_method%uselibxc)then
-                        call gpu_upload_method(3, quick_method%x_hybrid_coeff)
+                        call gpu_upload_method(3, quick_method%UNRST, quick_method%x_hybrid_coeff)
                         !call gpu_upload_hyb_coeff(quick_method%x_hybrid_coeff)
                 elseif(quick_method%BLYP)then
-                        call gpu_upload_method(2, 0.0d0)
+                        call gpu_upload_method(2, quick_method%UNRST, 0.0d0)
                 elseif(quick_method%B3LYP)then
-                        call gpu_upload_method(1, 0.2d0)
+                        call gpu_upload_method(1, quick_method%UNRST, 0.2d0)
                 endif
         endif
 
