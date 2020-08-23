@@ -715,20 +715,22 @@ subroutine get_cshell_eri_grad
    if (quick_method%bCUDA) then
 
       if(quick_method%HF)then
-         call gpu_upload_method(0, 1.0d0)
+         call gpu_upload_method(0, quick_method%UNRST, 1.0d0)
       elseif(quick_method%uselibxc)then
-         call gpu_upload_method(3, quick_method%x_hybrid_coeff)
+         call gpu_upload_method(3, quick_method%UNRST, quick_method%x_hybrid_coeff)
       elseif(quick_method%BLYP)then
-         call gpu_upload_method(2, 0.0d0)
+         call gpu_upload_method(2, quick_method%UNRST, 0.0d0)
       elseif(quick_method%B3LYP)then
-         call gpu_upload_method(1, 0.2d0)
+         call gpu_upload_method(1, quick_method%UNRST, 0.2d0)
       endif
 
       call gpu_upload_calculated(quick_qm_struct%o,quick_qm_struct%co, &
       quick_qm_struct%vec,quick_qm_struct%dense)
-      call gpu_upload_calculated_beta(quick_qm_struct%ob,quick_qm_struct%denseb)
       call gpu_upload_cutoff(cutmatrix, quick_method%integralCutoff,quick_method%primLimit)
       call gpu_upload_grad(quick_qm_struct%gradient, quick_method%gradCutoff)
+#ifdef OSHELL
+      call gpu_upload_calculated_beta(quick_qm_struct%ob,quick_qm_struct%denseb)
+#endif
       call gpu_grad(quick_qm_struct%gradient)
 
    else
