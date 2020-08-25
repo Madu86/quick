@@ -990,8 +990,11 @@ quick_method%xc_polarization)
                   libxc_sigma(2)=gab
                   libxc_sigma(3)=gbb
 #else
-                  libxc_rho(1)  =(density+densityb)
-                  libxc_sigma(1)=4.0d0*(gax*gax+gay*gay+gaz*gaz)
+                  densitysum = (density+densityb)
+                  sigma      = 4.0d0*(gax*gax+gay*gay+gaz*gaz)
+
+                  libxc_rho(1)  =densitysum
+                  libxc_sigma(1)=sigma
 #endif
 
                   excpp=0.0d0
