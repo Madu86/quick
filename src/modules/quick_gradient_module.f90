@@ -1042,35 +1042,34 @@ quick_method%xc_polarization)
                      xdot = 4.0d0*dfdgaa*gax
                      ydot = 4.0d0*dfdgaa*gay
                      zdot = 4.0d0*dfdgaa*gaz
-#endif
                   
                   elseif(quick_method%BLYP) then
 
-!                     call becke_E(density, densityb, gax, gay, gaz, gbx, gby,gbz, Ex)
-!                     call lyp_e(density, densityb, gax, gay, gaz, gbx, gby, gbz,Ec)
+                     call becke_E(density, densityb, gax, gay, gaz, gbx, gby,gbz, Ex)
+                     call lyp_e(density, densityb, gax, gay, gaz, gbx, gby, gbz,Ec)
 
-!                     zkec=Ex+Ec
+                     zkec=Ex+Ec
 
-!                     call becke(density, gax, gay, gaz, gbx, gby, gbz, dfdr, dfdgaa, dfdgab)
-!                     call lyp(density, densityb, gax, gay, gaz, gbx, gby, gbz, dfdr2, dfdgaa2, dfdgab2)
+                     call becke(density, gax, gay, gaz, gbx, gby, gbz, dfdr, dfdgaa, dfdgab)
+                     call lyp(density, densityb, gax, gay, gaz, gbx, gby, gbz, dfdr2, dfdgaa2, dfdgab2)
             
-!                     dfdr = dfdr + dfdr2
-!                     dfdgaa = dfdgaa + dfdgaa2
-!                     dfdgab = dfdgab + dfdgab2
+                     dfdr = dfdr + dfdr2
+                     dfdgaa = dfdgaa + dfdgaa2
+                     dfdgab = dfdgab + dfdgab2
 
-!                     xdot = 2.d0*dfdgaa*gax + dfdgab*gbx
-!                     ydot = 2.d0*dfdgaa*gay + dfdgab*gby
-!                     zdot = 2.d0*dfdgaa*gaz + dfdgab*gbz
+                     xdot = 2.d0*dfdgaa*gax + dfdgab*gbx
+                     ydot = 2.d0*dfdgaa*gay + dfdgab*gby
+                     zdot = 2.d0*dfdgaa*gaz + dfdgab*gbz
 
                   elseif(quick_method%B3LYP) then
 
-!                     call b3lyp_e(densitysum, sigma, zkec)
-!                     call b3lypf(densitysum, sigma, dfdr, xiaodot)
+                     call b3lyp_e(densitysum, sigma, zkec)
+                     call b3lypf(densitysum, sigma, dfdr, xiaodot)
 
-!                     xdot=xiaodot*gax
-!                     ydot=xiaodot*gay
-!                     zdot=xiaodot*gaz
-
+                     xdot=xiaodot*gax
+                     ydot=xiaodot*gay
+                     zdot=xiaodot*gaz
+#endif
                   endif
 
 ! Now loop over basis functions and compute the addition to the matrix
