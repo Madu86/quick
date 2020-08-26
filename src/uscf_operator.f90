@@ -302,8 +302,8 @@ subroutine getxc_oshell
    double precision :: Eelxcslave
    double precision, allocatable:: slaveoa(:,:), slaveob(:,:) 
 
-   allocate(slaveoa(nbasis,nbasis))
-   allocate(slaveob(nbasis,nbasis))
+   if(.not. allocated(slaveoa)) allocate(slaveoa(nbasis,nbasis))
+   if(.not. allocated(slaveob)) allocate(slaveob(nbasis,nbasis))
 
 !  Braodcast libxc information to slaves
    call MPI_BCAST(quick_method%nof_functionals,1,mpi_integer,0,MPI_COMM_WORLD,mpierror)
@@ -314,10 +314,12 @@ subroutine getxc_oshell
    quick_qm_struct%aelec=0.d0
    quick_qm_struct%belec=0.d0
    Eelxc=0.0d0
+   Eelxcslave=0.0d0
 
 #ifdef MPIV
 !  Set the values of slave operators to zero
    if (.not.master) quick_qm_struct%o = 0.0d0
+   if (.not.master) quick_qm_struct%ob = 0.0d0
 
    slaveoa = 0.0d0
    slaveob = 0.0d0
@@ -618,6 +620,10 @@ subroutine getxc_oshell
 !   endif
 #ifdef MPIV
    endif
+
+   if(allocated(slaveoa)) deallocate(slaveoa)
+   if(allocated(slaveob)) deallocate(slaveob)
+
 #endif
 
 ! call exit
