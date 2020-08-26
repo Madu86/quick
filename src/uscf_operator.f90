@@ -314,7 +314,6 @@ subroutine getxc_oshell
    quick_qm_struct%aelec=0.d0
    quick_qm_struct%belec=0.d0
    Eelxc=0.0d0
-   Eelxcslave=0.0d0
 
 #ifdef MPIV
 !  Set the values of slave operators to zero
@@ -323,7 +322,7 @@ subroutine getxc_oshell
 
    slaveoa = 0.0d0
    slaveob = 0.0d0
-   
+   Eelxcslave=0.0d0 
 #endif
 
 #ifdef CUDA
