@@ -312,7 +312,7 @@ subroutine get_xc
    double precision :: Eelxcslave
    double precision, allocatable:: temp2d(:,:)
 
-   allocate(temp2d(nbasis,nbasis))
+   if(.not. allocated(temp2d)) allocate(temp2d(nbasis,nbasis))
 
 !  Braodcast libxc information to slaves
    call MPI_BCAST(quick_method%nof_functionals,1,mpi_integer,0,MPI_COMM_WORLD,mpierror)        
@@ -581,10 +581,16 @@ subroutine get_xc
      write(iOutFile,*) "Eelex=",Eelxc
      write(iOutFile,*) "E1+E2+Eelxc=",quick_qm_struct%Eel
    endif
+
+     write(*,*) "Eelex=",Eelxc
+     write(*,*) "E1+E2+Eelxc=",quick_qm_struct%Eel
+
 #endif
 !   endif
 #ifdef MPIV
    endif
+
+   if(allocated(temp2d)) deallocate(temp2d)
 #endif
   
    return
