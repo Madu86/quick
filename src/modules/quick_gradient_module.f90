@@ -198,14 +198,13 @@ subroutine scf_gradient
 #endif
    use allmod
 #ifdef OSHELL
-   use quick_cshell_gradient_module, only:get_nuc_repulsion_grad
+   use quick_cshell_gradient_module   
 #endif
    implicit double precision(a-h,o-z)
 
    integer II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2
    common /hrrstore/II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2
 #ifdef MPIV
-   double precision:: temp_grad(3*natom)
    include "mpif.h"
 #endif
 
@@ -223,10 +222,13 @@ subroutine scf_gradient
 !  Start the timer for gradient calculation
    call cpu_time(timer_begin%TGrad)
 
+#ifdef MPIV
+   call allocate_quick_gradient()
+#endif
+
 !  Set the values of gradient arry to zero 
-   do Iatm=1,natom*3
-      quick_qm_struct%gradient(iatm)=0.d0
-   enddo
+   quick_qm_struct%gradient       = 0.0d0
+   if (quick_method%extCharges) quick_qm_struct%ptchg_gradient = 0.0d0
 
 !---------------------------------------------------------------------
 !  1) The derivative of the nuclear repulsion.
@@ -289,6 +291,8 @@ endif
 
 #ifdef MPIV
    if (bMPI) then
+      call MPI_BARRIER(MPI_COMM_WORLD,mpierror)
+
       nshell_mpi = mpi_jshelln(mpirank)
    else
       nshell_mpi = jshell
@@ -388,19 +392,36 @@ endif
 !  slave node will send infos
    if(.not.master) then
       do i=1,natom*3
-         temp_grad(i)=quick_qm_struct%gradient(i)
+         tmp_grad(i)=quick_qm_struct%gradient(i)
       enddo
 !  send operator to master node
-   call MPI_SEND(temp_grad,3*natom,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+   call MPI_SEND(tmp_grad,3*natom,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+
+   if(quick_molspec%nextatom.gt.0) then
+      do i=1,quick_molspec%nextatom*3
+         tmp_ptchg_grad(i) = quick_qm_struct%ptchg_gradient(i)
+      enddo
+      call MPI_SEND(tmp_ptchg_grad,3*quick_molspec%nextatom,mpi_double_precision,0,mpirank,MPI_COMM_WORLD,IERROR)
+   endif
+
    else
 !  master node will receive infos from every nodes
       do i=1,mpisize-1
 !  receive opertors from slave nodes
-         call MPI_RECV(temp_grad,3*natom,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+         call MPI_RECV(tmp_grad,3*natom,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
 !  and sum them into operator
          do ii=1,natom*3
-            quick_qm_struct%gradient(ii)=quick_qm_struct%gradient(ii)+temp_grad(ii)
+            quick_qm_struct%gradient(ii)=quick_qm_struct%gradient(ii)+tmp_grad(ii)
          enddo
+
+         if(quick_molspec%nextatom.gt.0) then
+            call MPI_RECV(tmp_ptchg_grad,3*quick_molspec%nextatom,mpi_double_precision,i,i,MPI_COMM_WORLD,MPI_STATUS,IERROR)
+
+            do ii=1,quick_molspec%nextatom*3
+               quick_qm_struct%ptchg_gradient(ii) = quick_qm_struct%ptchg_gradient(ii) + tmp_ptchg_grad(ii)
+            enddo
+         endif
+
       enddo
   endif
 #endif
@@ -435,6 +456,10 @@ endif
 !!!!!!!!!!!!!!!!!!!!!!!!!!Madu!!!!!!!!!!!!!!!!!!!!!!!
 
 !stop
+
+#ifdef MPIV
+   call deallocate_quick_gradient()
+#endif
 
    return
 
@@ -842,7 +867,8 @@ subroutine get_cshell_xc_grad
    use xc_f90_lib_m
    implicit none
 
-   integer :: iatm, ibas, ibin, icount, ifunc, igp, jbas, jcount, ibasstart, ierror
+   integer :: iatm, ibas, ibin, icount, ifunc, igp, jbas, jcount, ibasstart, irad_init, &
+   irad_end, ierror
    double precision :: density, densityb, densitysum, dfdgaa, dfdgaa2, dfdgab, dfdgbb, &
    dfdgab2, dfdr, dfdrb, dfdr2, dphi2dx, dphi2dy, dphi2dz, dphidx, dphidy, dphidz, &
    gax, gay, gaz, gbx, gby, gbz, gaa, gab, gbb, gridx, gridy, gridz, phi, phi2, quicktest, &
@@ -867,7 +893,7 @@ subroutine get_cshell_xc_grad
    include "mpif.h"
 #endif
 
-#ifdef CUDA
+#if defined CUDA || defined CUDA_MPIV
 
    if(quick_method%bCUDA) then
 
@@ -899,7 +925,7 @@ quick_method%xc_polarization)
       enddo
    endif
 
-#ifdef MPIV
+#if defined MPIV && !defined CUDA_MPIV
       if(bMPI) then
          irad_init = quick_dft_grid%igridptll(mpirank+1)
          irad_end = quick_dft_grid%igridptul(mpirank+1)
@@ -967,16 +993,6 @@ quick_method%xc_polarization)
 !  This allows the calculation of the derivative of the functional
 !  with regard to the density (dfdr), with regard to the alpha-alpha
 !  density invariant (df/dgaa), and the alpha-beta density invariant.
-
-!                  densitysum=2.0d0*density
-!                  sigma=4.0d0*(gax*gax+gay*gay+gaz*gaz)
-
-!                  libxc_rho(1)=densitysum
-!                  libxc_sigma(1)=sigma
-
-!                  tsttmp_exc=0.0d0
-!                  tsttmp_vrhoa=0.0d0
-!                  tsttmp_vsigmaa=0.0d0
 
 #ifdef OSHELL
                   gaa = (gax*gax+gay*gay+gaz*gaz)
