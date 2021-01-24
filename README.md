@@ -18,6 +18,13 @@ Features
 * Gradient and geometry optimization calculations (LBFGS solver available)
 * Mulliken charge analysis
 
+Performance
+-----------
+
+<p align="left">
+<img width="1248" height="480" src="./tools/perf1.png">
+</p>
+
 Installation
 ------------
 Supported platforms: Linux and OSX
