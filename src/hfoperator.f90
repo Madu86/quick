@@ -793,6 +793,7 @@ subroutine get2edc
    ! This subroutine is to get 2e integral for d&c
    !------------------------------------------------
    use allmod
+   use quick_cshell_module, only: cshell
    implicit double precision(a-h,o-z)
    double precision testtmp,cutoffTest
    common /hrrstore/II,JJ,KK,LL,NBI1,NBI2,NBJ1,NBJ2,NBK1,NBK2,NBL1,NBL2
@@ -816,7 +817,7 @@ subroutine get2edc
                      .or.(dcconnect(JJ,KK).eq.1.and.(cutmatrix(II,LL)*testCutoff).gt.quick_method%integralCutoff) &
                      .or.(dcconnect(JJ,LL).eq.1.and.(cutmatrix(II,KK)*testCutoff).gt.quick_method%integralCutoff))then
 
-                  call shell
+                  call cshell
                endif
             endif
 
