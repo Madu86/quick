@@ -639,6 +639,7 @@ end subroutine
 subroutine dftoperator
    use allmod
    use quick_cutoff_module, only: cshell_dnscreen
+   use quick_cshell_module, only: cshell
 
 !#ifndef CUDA
    use xc_f90_types_m
@@ -914,7 +915,7 @@ write(*,*) "E0=",quick_qm_struct%Eel
                            cutmatrix(II,LL),cutmatrix(II,KK),cutmatrix(JJ,KK),cutmatrix(JJ,LL))
                      cutoffTest=testCutoff*DNmax
                      if(cutoffTest.gt.quick_method%integralCutoff)then
-                        call shell
+                        call cshell
                      endif
                      !            else
                      !             print*,II,JJ,KK,LL,cutoffTest,testCutoff,DNmax
@@ -953,7 +954,7 @@ write(*,*) "E0=",quick_qm_struct%Eel
                   cutmatrix(JJ,KK), &
                   cutmatrix(JJ,LL))
                      if(cutoffTest*DNmax.gt.quick_method%integralCutoff)then
-                        call shell
+                        call cshell
                      endif
                   endif
                enddo
