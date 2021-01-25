@@ -32,6 +32,7 @@ subroutine hfoperator(oneElecO, deltaO)
    !-------------------------------------------------------
    use allmod
    use quick_cutoff_module, only: cshell_density_cutoff
+   use quick_cshell_module, only: get_cshell_eri, get_cshell_eri_energy
    use quick_gaussian_class_module
    implicit none
 
@@ -118,7 +119,7 @@ subroutine hfoperator(oneElecO, deltaO)
       ! Schwartz cutoff is implemented here. (ab|cd)**2<=(ab|ab)*(cd|cd)
       ! Reference: Strout DL and Scuseria JCP 102(1995),8448.
       do II=1,jshell
-         call get2e(II)
+         call get_cshell_eri(II)
       enddo
 !stop
 
@@ -139,7 +140,7 @@ subroutine hfoperator(oneElecO, deltaO)
    if (deltaO) call CopyDMat(quick_qm_struct%denseSave,quick_qm_struct%dense,nbasis)
 
    ! Give the energy, E=1/2*sigma[i,j](Pij*(Fji+Hcoreji))
-   if(quick_method%printEnergy) call get2eEnergy()
+   if(quick_method%printEnergy) call get_cshell_eri_energy
 
 
    call cpu_time(timer_end%T2e)  ! Terminate the timer for 2e-integrals
@@ -158,6 +159,7 @@ subroutine hfoperatordeltadc
    use allmod
    use quick_gaussian_class_module
    use quick_cutoff_module, only: cshell_dnscreen
+   use quick_cshell_module, only: cshell
    implicit double precision(a-h,o-z)
 
    double precision cutoffTest,testtmp
@@ -328,7 +330,7 @@ subroutine hfoperatordeltadc
                         .or.(dcconnect(JJ,KK).eq.1.and.(cutmatrix(II,LL)*testCutoff).gt.quick_method%integralCutoff) &
                         .or.(dcconnect(JJ,LL).eq.1.and.(cutmatrix(II,KK)*testCutoff).gt.quick_method%integralCutoff))then
 
-                     call shell
+                     call cshell
                   endif
                endif
 
@@ -369,6 +371,7 @@ end subroutine hfoperatordeltadc
 subroutine hfoperatordc(oneElecO)
    use allmod
    use quick_cutoff_module, only: cshell_density_cutoff
+   use quick_cshell_module, only: get_cshell_eri_energy
    use quick_gaussian_class_module
    implicit double precision(a-h,o-z)
 
@@ -427,7 +430,7 @@ subroutine hfoperatordc(oneElecO)
 
    call copySym(quick_qm_struct%o,nbasis)
 
-   if(quick_method%printEnergy) call get2eEnergy
+   if(quick_method%printEnergy) call get_cshell_eri_energy
 
    return
 end subroutine hfoperatordc
@@ -874,7 +877,7 @@ end subroutine get2edc
 subroutine get2eEnergy()
    use allmod
    implicit double precision(a-h,o-z)
-   
+  
    !------------------------------------------------
    ! This subroutine is to get 2e energy
    !------------------------------------------------
