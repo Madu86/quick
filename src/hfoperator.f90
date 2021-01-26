@@ -461,6 +461,7 @@ subroutine mpi_hfoperator(oneElecO, deltaO)
    !-------------------------------------------------------
    use allmod
    use quick_cutoff_module, only: cshell_density_cutoff
+   use quick_cshell_module, only: get_cshell_eri, get_cshell_eri_energy
    use quick_gaussian_class_module
    implicit double precision(a-h,o-z)
 
@@ -549,7 +550,7 @@ subroutine mpi_hfoperator(oneElecO, deltaO)
    do i=1,mpi_jshelln(mpirank)
       ii=mpi_jshell(mpirank,i)
      ! write (*,'(A22,2x,I5,2x,I5,2x,I5)') "Madu: i,mpirank,ii",i,mpirank,ii  
-      call get2e(II)
+      call get_cshell_eri(II)
    enddo
 
    ! After evaluation of 2e integrals, we can communicate every node so
@@ -594,7 +595,7 @@ call MPI_BARRIER(MPI_COMM_WORLD,mpierror) !Madu
       call copySym(quick_qm_struct%o,nbasis)
 
       ! E=sigma[i,j] (Pij*(Fji+Hji))
-      if(quick_method%printEnergy) call get2eEnergy
+      if(quick_method%printEnergy) call get_cshell_eri_energy
    endif
    !----------- END MPI/MASTER NODE -----------------
 
@@ -615,6 +616,7 @@ end subroutine mpi_hfoperator
 subroutine mpi_hfoperatordc(oneElecO)
    use allmod
    use quick_cutoff_module, only: cshell_density_cutoff
+   use quick_cshell_module, only: get_cshell_eri_energy
    use quick_gaussian_class_module
    implicit double precision(a-h,o-z)
 
@@ -776,7 +778,7 @@ subroutine mpi_hfoperatordc(oneElecO)
       call copySym(quick_qm_struct%o,nbasis)
 
       ! E=sigma[i,j] (Pij*Fji)
-      if(quick_method%printEnergy) call get2eEnergy
+      if(quick_method%printEnergy) call get_cshell_eri_energy
    endif
    !-------- END MPI/MASTER NODE -----------------
 
