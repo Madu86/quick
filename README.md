@@ -22,7 +22,7 @@ Performance
 -----------
 
 <p align="left">
-<img width="900" height="360" src="./tools/perf1.png">
+<img width="1000" height="400" src="./tools/perf1.png">
 </p>
 
 Installation
